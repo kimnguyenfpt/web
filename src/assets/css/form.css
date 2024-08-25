@@ -1,0 +1,78 @@
+.register-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: rgb(243, 249, 252);
+}
+
+.register-form {
+    background: white;
+    padding: 40px 60px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.06);
+    border-radius: 10px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.register-form h1 {
+    margin-bottom: 30px;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.register-form .input-box {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.register-form .input-box input {
+    width: 100%;
+    padding: 15px 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    outline: none;
+}
+
+.register-form .input-box span {
+    color: red;
+    font-size: 12px;
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+}
+
+.register-form .btn.normal {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    background-color: #088178;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.register-form .btn.normal:hover {
+    background-color: #065e5e;
+}
+
+.register-form .login-link {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.register-form .login-link a {
+    color: #088178;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.register-form .login-link a:hover {
+    text-decoration: underline;
+}
