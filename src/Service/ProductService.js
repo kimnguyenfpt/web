@@ -55,6 +55,17 @@ export const fetchProductById = async (id) => {
     throw error;
   }
 };
+ 
+export const fetchRelatedProducts = async (productId) => {
+  try {
+    const response = await fetch(`${url}/products/${productId}/related`);
+    if (!response.ok) throw new Error('Không thể lấy sản phẩm liên quan');
+    return await response.json();
+  } catch (error) {
+    console.error('Lỗi rồi:', error);
+    throw error;
+  }
+};
 
 export const fetchProductsByCategoryId = async (categoryId) => {
   try {

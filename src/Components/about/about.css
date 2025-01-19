@@ -1,0 +1,44 @@
+.about-us {
+  max-width: 960px;
+  margin: auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.header h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.about-us section {
+  margin-bottom: 30px;
+}
+
+.about-us h2 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.about-us p,
+.about-us ul {
+  color: #555;
+  line-height: 1.6;
+}
+
+.about-us ul {
+  padding-left: 20px;
+}
+
+.about-us ul li {
+  margin-bottom: 10px;
+}
+
+.contact-info a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.contact-info a:hover {
+  text-decoration: underline;
+}

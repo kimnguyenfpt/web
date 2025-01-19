@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { login, logout } from './AuthLoginSilce'; 
+import { login, logout } from './AuthLoginSilce';
+import { Modal, Progress } from 'antd';
 import './Login.css';
 
 const Login = () => {
@@ -11,26 +12,63 @@ const Login = () => {
     const navigate = useNavigate();
     const auth = useSelector((state) => state.authLogin);
 
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+    const [progress, setProgress] = useState(100); // Giá trị thanh tiến trình
+
     const onSubmit = (data) => {
         dispatch(login(data)).unwrap()
             .then((response) => {
-                console.log('Login response:', response); 
+                console.log('Login response:', response);
                 sessionStorage.setItem('user', JSON.stringify(response));
-                window.alert('Đăng nhập thành công');
-                navigate('/');
+                setModalMessage('Đăng nhập thành công!');
+                showModalAndRedirect('/');
             })
             .catch((error) => {
                 console.error('Login error:', error);
-                window.alert('Đăng nhập thất bại: ' + (error.message || 'Kiểm tra lại thông tin đăng nhập của bạn'));
+                setModalMessage('Đăng nhập thất bại: ' + (error.message || 'Kiểm tra lại thông tin đăng nhập của bạn'));
+                showModal();
             });
     };
 
     const handleLogout = () => {
         dispatch(logout()).unwrap()
             .then(() => {
-                window.alert('Đăng xuất thành công');
-                navigate('/login');
+                sessionStorage.removeItem('user');
+                setModalMessage('Đăng xuất thành công!');
+                showModalAndRedirect('/login');
             });
+    };
+
+    const showModalAndRedirect = (path) => {
+        setProgress(100); // Đặt lại thanh tiến trình
+        setIsModalVisible(true);
+
+        let interval = setInterval(() => {
+            setProgress((prev) => {
+                if (prev <= 0) {
+                    clearInterval(interval);
+                    setIsModalVisible(false);
+                    navigate(path);
+                }
+                return prev - 10;
+            });
+        }, 200); // Giảm mỗi 200ms
+    };
+
+    const showModal = () => {
+        setProgress(100); // Đặt lại thanh tiến trình
+        setIsModalVisible(true);
+
+        let interval = setInterval(() => {
+            setProgress((prev) => {
+                if (prev <= 0) {
+                    clearInterval(interval);
+                    setIsModalVisible(false);
+                }
+                return prev - 10;
+            });
+        }, 200); // Giảm mỗi 200ms
     };
 
     return (
@@ -77,6 +115,17 @@ const Login = () => {
                     <button onClick={handleLogout} className="btn">Đăng xuất</button>
                 </div>
             )}
+
+            {/* Modal thông báo */}
+            <Modal
+                title="Thông báo"
+                visible={isModalVisible}
+                footer={null}
+                onCancel={() => setIsModalVisible(false)}
+            >
+                <p>{modalMessage}</p>
+                <Progress percent={progress} status="active" />
+            </Modal>
         </div>
     );
 };

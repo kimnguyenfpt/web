@@ -1,10 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { fetchHotProducts, fetchProductsByCategoryId } from '../../Service/ProductService';
-import BrandBox from '../Brand/BrandBox';
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import {
+  fetchHotProducts,
+  fetchProductsByCategoryId,
+} from "../../Service/ProductService";
+import { addItem } from "../Cart/CartSlice"; // Import the addItem action
+import BrandBox from "../Brand/BrandBox";
+import "./Products.css"; // Include CSS for modal and progress bar
 
 function HotProducts() {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false); // Modal visibility state
+  const [modalProduct, setModalProduct] = useState(null); // Product added to the cart
+  const [progress, setProgress] = useState(0); // Progress bar state
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const loadHotProducts = async () => {
@@ -19,6 +30,21 @@ function HotProducts() {
     loadHotProducts();
   }, []);
 
+  useEffect(() => {
+    if (modalVisible) {
+      setProgress(0);
+      const interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            closeModal();
+          }
+          return prev + 5;
+        });
+      }, 100); // Update progress every 100ms
+    }
+  }, [modalVisible]);
+
   const handleCategoryClick = async (categoryId) => {
     try {
       const categoryProducts = await fetchProductsByCategoryId(categoryId);
@@ -29,26 +55,25 @@ function HotProducts() {
   };
 
   const addToCart = (product) => {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const existingProduct = cart.find(item => item.id === product.id);
+    dispatch(addItem(product));
+    setModalProduct(product); // Set the product added to the cart
+    setModalVisible(true); // Show the modal
+  };
 
-    if (existingProduct) {
-      existingProduct.quantity += 1;
-    } else {
-      cart.push({ ...product, quantity: 1 });
-    }
-
-    localStorage.setItem('cart', JSON.stringify(cart));
-    alert(`${product.name} đã được thêm vào giỏ hàng`);
+  const closeModal = () => {
+    setModalVisible(false); // Hide the modal
   };
 
   const formatCurrency = (amount) => {
-    return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    return amount.toLocaleString("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    });
   };
 
   return (
     <section id="product1" className="section-p1">
-      <BrandBox onCategoryClick={handleCategoryClick}/>
+      <BrandBox onCategoryClick={handleCategoryClick} />
       <h2>Sản Phẩm Nổi Bật</h2>
       <div className="pro-container" id="hot-products">
         {error && <p>Error: {error}</p>}
@@ -58,7 +83,9 @@ function HotProducts() {
               <img src={`/img/products/${product.img}`} alt={product.name} />
               <div className="des">
                 <span>{product.category}</span>
-                <h5>{product.name}</h5>
+                <Link to={`/product/${product.id}`}>
+                  <h5>{product.name}</h5>
+                </Link>
                 <div className="star">
                   <i className="fas fa-star"></i>
                   <i className="fas fa-star"></i>
@@ -68,7 +95,7 @@ function HotProducts() {
                 </div>
                 <h4 className="price">{formatCurrency(product.price)}</h4>
                 <button onClick={() => addToCart(product)}>
-                    <i className="fa-solid fa-cart-shopping cart"></i>
+                  <i className="fa-solid fa-cart-shopping cart"></i>
                 </button>
               </div>
             </div>
@@ -77,6 +104,27 @@ function HotProducts() {
           <p>Đang tải sản phẩm...</p>
         )}
       </div>
+
+      {/* Modal with progress bar */}
+      {modalVisible && modalProduct && (
+        <div className="modal">
+          <div className="modal-content">
+            <h4>Sản phẩm đã được thêm vào giỏ hàng!</h4>
+            <p>{modalProduct.name}</p>
+            <img
+              src={`/img/products/${modalProduct.img}`}
+              alt={modalProduct.name}
+              className="modal-product-img"
+            />
+            <div className="progress-bar">
+              <div
+                className="progress"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

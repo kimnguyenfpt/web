@@ -1,16 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateQuantity, removeItem, setCart } from './CartSlice';
+import {useNavigate} from 'react-router-dom'
+import '../../assets/css/cart.css'; // CSS cho giỏ hàng
 
 const Cart = () => {
-  const cartItems = useSelector((state) => state.cart);
+  const cartItems = useSelector((state) => state.cart.items);
   const dispatch = useDispatch();
+  const navigate = useNavigate(); 
 
   const [buyerInfo, setBuyerInfo] = useState({
     username: '',
     address: '',
-    phone: ''
+    phone: '',
   });
+
+  // State cho modal
+  const [showModal, setShowModal] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState(null);
 
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -18,11 +25,26 @@ const Cart = () => {
   }, [dispatch]);
 
   const handleUpdateQuantity = (index, quantity) => {
-    dispatch(updateQuantity({ index, quantity }));
+    if (quantity <= 0) {
+      alert('Số lượng phải lớn hơn 0.');
+    } else {
+      dispatch(updateQuantity({ index, quantity }));
+    }
   };
 
-  const handleRemoveItem = (index) => {
-    dispatch(removeItem(index));
+  const handleRemoveConfirmation = (index) => {
+    setItemToRemove(index);
+    setShowModal(true);
+  };
+
+  const handleRemoveItem = () => {
+    dispatch(removeItem(itemToRemove));
+    setShowModal(false);
+  };
+
+  const handleCancelRemove = () => {
+    setItemToRemove(null);
+    setShowModal(false);
   };
 
   const formatCurrency = (amount) => {
@@ -42,56 +64,18 @@ const Cart = () => {
     const { id, value } = e.target;
     setBuyerInfo((prevState) => ({
       ...prevState,
-      [id]: value
+      [id]: value,
     }));
   };
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     if (cartItems.length === 0) {
       alert('Giỏ hàng trống. Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán.');
       return;
     }
 
-    const invalidItems = cartItems.filter(item => item.quantity <= 0);
-
-    if (invalidItems.length > 0) {
-      alert('Vui lòng kiểm tra lại giỏ hàng.');
-      return;
-    }
-
-    if (!buyerInfo.username.trim() || !buyerInfo.address.trim() || !buyerInfo.phone.trim()) {
-      alert('Vui lòng nhập đầy đủ thông tin người mua.');
-      return;
-    }
-
-    const orderDetails = {
-      buyerInfo,
-      cartItems,
-      subtotal: getSubtotal(),
-      total: getTotal()
-    };
-
-    try {
-      const response = await fetch('http://localhost:3000/api/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(orderDetails)
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        alert('Đã đặt hàng thành công');
-        dispatch(setCart([]));
-        localStorage.setItem('cart', JSON.stringify([]));
-      } else {
-        alert(`Không thể đặt hàng: ${data.message}`);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Vui lòng thử lại xem');
-    }
+    // Chuyển hướng sang trang thanh toán
+    navigate('/checkout');
   };
 
   return (
@@ -112,8 +96,17 @@ const Cart = () => {
             {cartItems.length > 0 ? (
               cartItems.map((item, index) => (
                 <tr key={index}>
-                  <td><button onClick={() => handleRemoveItem(index)}>Xóa</button></td>
-                  <td><img src={`/img/products/${item.img}`} alt={item.name} /></td>
+                  <td>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleRemoveConfirmation(index)}
+                    >
+                      Xóa
+                    </button>
+                  </td>
+                  <td>
+                    <img src={`/img/products/${item.img}`} alt={item.name} />
+                  </td>
                   <td>{item.name}</td>
                   <td className="price">{formatCurrency(item.price)}</td>
                   <td>
@@ -137,20 +130,8 @@ const Cart = () => {
 
       {cartItems.length > 0 && (
         <section id="cart-add" className="section-p1">
-          <div id="buyer-info">
-            <h3>Thông tin người mua</h3>
-            <div>
-              <input type="text" id="username" placeholder="Họ tên" value={buyerInfo.username} onChange={handleChange} />
-            </div>
-            <div>
-              <input type="text" id="address" placeholder="Địa chỉ" value={buyerInfo.address} onChange={handleChange} />
-            </div>
-            <div>
-              <input type="tel" id="phone" placeholder="Số điện thoại" value={buyerInfo.phone} onChange={handleChange} />
-            </div>
-          </div>
           <div id="subtotal">
-            <h3></h3>
+            <h3>Tổng cộng</h3>
             <table>
               <tbody>
                 <tr>
@@ -167,9 +148,36 @@ const Cart = () => {
                 </tr>
               </tbody>
             </table>
-            <button className="normal" onClick={handleCheckout} disabled={cartItems.length === 0}>Tiến hành thanh toán</button>
+            <button
+              className="btn-checkout"
+              onClick={handleCheckout}
+            >
+              Tiến hành thanh toán
+            </button>
           </div>
         </section>
+      )}
+
+      {/* Confirmation Modal */}
+      {showModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h4>Xóa sản phẩm</h4>
+            <p>Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?</p>
+            <button
+              className="btn-confirm"
+              onClick={handleRemoveItem}
+            >
+              Xóa
+            </button>
+            <button
+              className="btn-cancel"
+              onClick={handleCancelRemove}
+            >
+              Hủy
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

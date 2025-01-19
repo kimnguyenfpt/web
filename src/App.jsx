@@ -17,6 +17,8 @@ import Logout from './Components/Logout/Logout';
 
 import Cart from './Components/Cart/Cart';
 import Profile from './Components/Profile/Profile';
+import AboutUs from './Components/about';
+import CheckoutPage from './Components/checkout/checkout';
 
 
 
@@ -28,6 +30,9 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/Shop" element={<Shop />} />
+        <Route path="/about" element={<AboutUs />} />
+
+        <Route path="/checkout" element={<CheckoutPage />} />
         
         <Route path="/products" element={<Products />} />
         <Route path="/product/:id" element={<ProductDetails />} />
