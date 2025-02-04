@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setCart } from '../../Components/Cart/CartSlice'; // Import action setCart để cập nhật giỏ hàng
-import './checkout.css';
+import { setCart } from '../../Components/Cart/CartSlice';
 
 const CheckoutPage = () => {
   const cartItems = useSelector((state) => state.cart.items);
   const shippingFee = 100000;
   const navigate = useNavigate();
-  const dispatch = useDispatch(); // Sử dụng dispatch để cập nhật Redux
+  const dispatch = useDispatch();
 
-  // State để quản lý thông tin người dùng
   const [buyerInfo, setBuyerInfo] = useState({
     username: '',
     address: '',
@@ -37,142 +35,116 @@ const CheckoutPage = () => {
       return;
     }
 
-    // Hiển thị thông báo thành công
     alert(`Thanh toán thành công, ${username}!`);
 
-    // Xóa giỏ hàng
     dispatch(setCart([]));
-    localStorage.setItem('cart', JSON.stringify([])); // Cập nhật localStorage
+    localStorage.setItem('cart', JSON.stringify([]));
 
-    // Điều hướng về trang chủ hoặc trang khác sau khi thanh toán
     navigate('/');
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <h2 style={{ fontSize: '40px', textAlign: 'center' }}>Thông tin thanh toán</h2>
+    <div className="container mx-auto px-4 py-8">
+      <h2 className="text-3xl md:text-4xl font-bold text-center mb-8">Thông tin thanh toán</h2>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* Thông tin người mua */}
-        <div style={{ flex: 1, marginRight: '20px' }}>
-          <h3>Thông tin người mua</h3>
+        <div className="flex-1 bg-white p-6 rounded-lg shadow-md">
+          <h3 className="text-2xl font-semibold mb-4">Thông tin người mua</h3>
           <form>
-            <label htmlFor="username">Họ tên:</label>
+            <label htmlFor="username" className="block text-gray-700 font-medium mb-2">
+              Họ tên:
+            </label>
             <input
               type="text"
               id="username"
               value={buyerInfo.username}
               onChange={handleInputChange}
               placeholder="Nhập họ tên"
-              style={{
-                display: 'block',
-                width: '100%',
-                marginBottom: '15px',
-                padding: '10px',
-                border: '1px solid #ddd',
-                borderRadius: '5px',
-              }}
+              className="w-full p-3 mb-4 border border-gray-300 rounded-lg"
             />
-            <label htmlFor="address">Địa chỉ:</label>
+
+            <label htmlFor="address" className="block text-gray-700 font-medium mb-2">
+              Địa chỉ:
+            </label>
             <input
               type="text"
               id="address"
               value={buyerInfo.address}
               onChange={handleInputChange}
               placeholder="Nhập địa chỉ"
-              style={{
-                display: 'block',
-                width: '100%',
-                marginBottom: '15px',
-                padding: '10px',
-                border: '1px solid #ddd',
-                borderRadius: '5px',
-              }}
+              className="w-full p-3 mb-4 border border-gray-300 rounded-lg"
             />
-            <label htmlFor="phone">Số điện thoại:</label>
+
+            <label htmlFor="phone" className="block text-gray-700 font-medium mb-2">
+              Số điện thoại:
+            </label>
             <input
               type="text"
               id="phone"
               value={buyerInfo.phone}
               onChange={handleInputChange}
               placeholder="Nhập số điện thoại"
-              style={{
-                display: 'block',
-                width: '100%',
-                marginBottom: '15px',
-                padding: '10px',
-                border: '1px solid #ddd',
-                borderRadius: '5px',
-              }}
+              className="w-full p-3 mb-4 border border-gray-300 rounded-lg"
             />
           </form>
         </div>
 
-        {/* Thông tin chi phí */}
-        <div style={{ flex: 1 }}>
-          <h3>Thông tin giỏ hàng</h3>
-          <table width="100%" style={{ borderCollapse: 'collapse' }}>
+        {/* Thông tin giỏ hàng */}
+        <div className="flex-1 bg-white p-6 rounded-lg shadow-md">
+          <h3 className="text-2xl font-semibold mb-4">Thông tin giỏ hàng</h3>
+          <table className="w-full border-collapse border border-gray-300">
             <thead>
               <tr>
-                <th>Sản phẩm</th>
-                <th>Số lượng</th>
-                <th>Giá</th>
-                <th>Tổng</th>
+                <th className="border border-gray-300 p-3">Sản phẩm</th>
+                <th className="border border-gray-300 p-3">Số lượng</th>
+                <th className="border border-gray-300 p-3">Giá</th>
+                <th className="border border-gray-300 p-3">Tổng</th>
               </tr>
             </thead>
             <tbody>
               {cartItems.map((item, index) => (
                 <tr key={index}>
-                  <td>{item.name}</td>
-                  <td>{item.quantity}</td>
-                  <td>{item.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</td>
-                  <td>{(item.price * item.quantity).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</td>
+                  <td className="border border-gray-300 p-3">{item.name}</td>
+                  <td className="border border-gray-300 p-3 text-center">{item.quantity}</td>
+                  <td className="border border-gray-300 p-3">
+                    {item.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                  </td>
+                  <td className="border border-gray-300 p-3">
+                    {(item.price * item.quantity).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <div style={{ marginTop: '20px', textAlign: 'right' }}>
-            <p>
-              <strong>Tổng tiền hàng:</strong>{' '}
+
+          <div className="mt-6 text-right">
+            <p className="mb-2 text-lg">
+              <strong>Tổng tiền hàng: </strong>
               {cartItems
                 .reduce((sum, item) => sum + item.price * item.quantity, 0)
                 .toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
             </p>
-            <p>
-              <strong>Phí vận chuyển:</strong>{' '}
+            <p className="mb-2 text-lg">
+              <strong>Phí vận chuyển: </strong>
               {shippingFee.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
             </p>
-            <p>
-              <strong>Tổng cộng:</strong>{' '}
+            <p className="text-xl font-bold text-red-600">
+              <strong>Tổng cộng: </strong>
               {calculateTotal().toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
             </p>
           </div>
 
-          {/* Nút hành động */}
-          <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+          <div className="flex justify-end gap-4 mt-6">
             <button
-              style={{
-                padding: '10px 20px',
-                backgroundColor: '#ccc',
-                color: '#000',
-                border: 'none',
-                cursor: 'pointer',
-                borderRadius: '5px',
-              }}
-              onClick={() => navigate(-1)} // Quay về trang trước
+              className="px-6 py-3 bg-gray-400 text-black rounded-lg hover:bg-teal-500 transition"
+              onClick={() => navigate(-1)}
             >
               Hủy bỏ
             </button>
             <button
-              style={{
-                padding: '10px 20px',
-                backgroundColor: '#00a1e0',
-                color: '#fff',
-                border: 'none',
-                cursor: 'pointer',
-                borderRadius: '5px',
-              }}
-              onClick={handleCheckout} // Xử lý thanh toán
+              className="px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-500 transition"
+              onClick={handleCheckout}
             >
               Xác nhận thanh toán
             </button>
